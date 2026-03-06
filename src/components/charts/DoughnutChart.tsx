@@ -39,28 +39,42 @@ export default function DoughnutChart({
             startAngle={isSemi ? 180 : 90}
             endAngle={isSemi ? 0 : -270}
             paddingAngle={2}
+            cornerRadius={4}
             dataKey="value"
           >
             {data.map((_, i) => (
-              <Cell key={i} fill={colors[i % colors.length]} />
+              <Cell key={i} fill={colors[i % colors.length]} stroke="none" />
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{
-              backgroundColor: "#0F172A",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "8px",
-              color: "#F8FAFC",
-              fontSize: "13px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-            }}
-            labelStyle={{ color: "#F8FAFC" }}
-            itemStyle={{ color: "#94A3B8" }}
+            isAnimationActive={false}
+            cursor={false}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(value: any, name: any) => [
-              `${Number(value || 0).toLocaleString()} (${((Number(value || 0) / total) * 100).toFixed(1)}%)`,
-              String(name),
-            ]}
+            content={({ active, payload, coordinate }: any) => {
+              if (!active || !payload?.[0]) return null;
+              const { name, value } = payload[0];
+              const pct = ((Number(value || 0) / total) * 100).toFixed(1);
+              return (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: coordinate?.x ?? 0,
+                    top: coordinate?.y ?? 0,
+                    transform: "translate(10px, -50%)",
+                    pointerEvents: "none",
+                    backgroundColor: "#0F172A",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <div style={{ color: "#F8FAFC", fontSize: "13px", fontWeight: 600 }}>{name}</div>
+                  <div style={{ color: "#94A3B8", fontSize: "12px" }}>{Number(value || 0).toLocaleString()} ({pct}%)</div>
+                </div>
+              );
+            }}
           />
         </PieChart>
       </ResponsiveContainer>

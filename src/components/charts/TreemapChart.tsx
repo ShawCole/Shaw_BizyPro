@@ -34,7 +34,7 @@ function CustomContent(props: any) {
         width={width}
         height={height}
         fill={color}
-        fillOpacity={0.15 + (value / props.root?.value || 1) * 0.7}
+        fillOpacity={0.2 + (value / (props.maxValue || 1)) * 0.6}
         stroke="#0F172A"
         strokeWidth={2}
         rx={4}
@@ -66,7 +66,8 @@ function CustomContent(props: any) {
 }
 
 export default function TreemapChart({ data, title, color }: Props) {
-  const treemapData = data.map((d) => ({ ...d, color }));
+  const maxValue = Math.max(...data.map((d) => d.value));
+  const treemapData = data.map((d) => ({ ...d, color, maxValue }));
   const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -99,18 +100,33 @@ export default function TreemapChart({ data, title, color }: Props) {
           isAnimationActive={false}
         >
           <Tooltip
-            contentStyle={{
-              backgroundColor: "#0F172A",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "8px",
-              color: "#F8FAFC",
-              fontSize: "13px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-            }}
-            labelStyle={{ color: "#F8FAFC" }}
-            itemStyle={{ color: "#94A3B8" }}
+            isAnimationActive={false}
+            cursor={false}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(value: any) => [Number(value || 0).toLocaleString(), "Count"]}
+            content={({ active, payload, coordinate }: any) => {
+              if (!active || !payload?.[0]) return null;
+              const { name, value } = payload[0].payload;
+              return (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: coordinate?.x ?? 0,
+                    top: coordinate?.y ?? 0,
+                    transform: "translate(10px, -50%)",
+                    pointerEvents: "none",
+                    backgroundColor: "#0F172A",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <div style={{ color: "#F8FAFC", fontSize: "13px", fontWeight: 600 }}>{name}</div>
+                  <div style={{ color: "#94A3B8", fontSize: "12px" }}>{Number(value || 0).toLocaleString()}</div>
+                </div>
+              );
+            }}
           />
         </Treemap>
       </ResponsiveContainer>

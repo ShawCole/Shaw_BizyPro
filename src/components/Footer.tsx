@@ -7,7 +7,7 @@ export default function Footer() {
             <p className="font-[family-name:var(--font-merriweather)] text-lg font-bold text-white">
               Shaw Cole
             </p>
-            <p className="text-sm text-slate-500">Data Engine Architect</p>
+            <p className="text-sm text-slate-500">Go-To-Market Engineer</p>
           </div>
 
           <div className="flex items-center gap-6 text-sm text-slate-400">

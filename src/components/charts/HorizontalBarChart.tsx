@@ -22,16 +22,18 @@ interface Props {
 }
 
 export default function HorizontalBarChart({ data, title, color }: Props) {
-  const maxLabelLength = Math.max(...data.map((d) => d.name.length));
+  const displayData = data.slice(0, 8);
+  const maxLabelLength = Math.max(...displayData.map((d) => d.name.length));
   const labelWidth = Math.min(Math.max(maxLabelLength * 6.5, 70), 150);
+  const chartHeight = displayData.length * 36 + 16;
 
   return (
-    <div className="bg-slate-800/50 rounded-xl px-4 pt-4 pb-3 border border-white/5 flex flex-col min-h-[280px]">
+    <div className="bg-slate-800/50 rounded-xl px-4 pt-4 pb-3 border border-white/5">
       <h4 className="text-sm font-semibold text-slate-200 mb-2">{title}</h4>
-      <div className="flex-1 min-h-0">
+      <div style={{ height: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={data}
+          data={displayData}
           layout="vertical"
           margin={{ top: 0, right: 12, bottom: 0, left: 0 }}
           barCategoryGap={4}
@@ -61,7 +63,7 @@ export default function HorizontalBarChart({ data, title, color }: Props) {
             formatter={(value: any) => [Number(value || 0).toLocaleString(), "Count"]}
           />
           <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
-            {data.map((_, i) => (
+            {displayData.map((_, i) => (
               <Cell key={i} fill={color} fillOpacity={0.8 - i * 0.03} />
             ))}
           </Bar>

@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shaw Cole — Data Engine Architect",
+  title: "Shaw Cole — Go-To-Market Engineer",
   description:
     "Three companies. One data engine. Zero wasted ad spend. Visitor identification, audience building, and omnichannel activation.",
 };
