@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Shaw Cole — Go-To-Market Engineer",
   description:
-    "Three companies. One data engine. Zero wasted ad spend. Visitor identification, audience building, and omnichannel activation.",
+    "One data engine that finds your buyers. Agent fleets that run the work. Zero wasted ad spend.",
 };
 
 export default function RootLayout({

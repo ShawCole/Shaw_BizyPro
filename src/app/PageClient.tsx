@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { MotionConfig } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import SolutionsSection from "@/components/SolutionsSection";
 import ResultsSection from "@/components/ResultsSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import ContactSection from "@/components/ContactSection";
@@ -24,7 +23,6 @@ export default function PageClient() {
       <main>
         <HeroSection />
         <ArchitectureSection />
-        <SolutionsSection />
         <DataVizShowcase />
         <ResultsSection />
         <HowItWorksSection />

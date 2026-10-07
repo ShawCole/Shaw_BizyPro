@@ -7,7 +7,6 @@ import { DUR, tween } from "@/lib/motion";
 
 const links = [
   { label: "Engine", href: "#engine" },
-  { label: "Solutions", href: "#solutions" },
   { label: "Data Viz", href: "#dataviz" },
   { label: "Results", href: "#results" },
   { label: "Contact", href: "#contact" },

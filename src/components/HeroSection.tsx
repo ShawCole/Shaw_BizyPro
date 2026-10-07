@@ -226,9 +226,9 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mt-6 mb-8 sm:mt-8 sm:mb-10">
-            Three companies. One data engine. Zero wasted ad spend.{" "}
+            One data engine that finds your buyers. Agent fleets that run the work.{" "}
             <br className="hidden sm:block" />
-            Visitor identification, audience building, and omnichannel activation.
+            Zero wasted ad spend.
           </p>
         </div>
 

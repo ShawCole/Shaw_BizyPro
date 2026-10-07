@@ -4,10 +4,10 @@ import PageClient from "./PageClient";
 export const metadata: Metadata = {
   title: "Shaw Cole — Go-To-Market Engineer",
   description:
-    "Three companies. One data engine. Zero wasted ad spend. Visitor identification, audience building, and omnichannel activation.",
+    "One data engine that finds your buyers. Agent fleets that run the work. Zero wasted ad spend.",
   openGraph: {
     title: "Shaw Cole — Go-To-Market Engineer",
-    description: "Three companies. One data engine. Zero wasted ad spend.",
+    description: "One data engine that finds your buyers. Agent fleets that run the work. Zero wasted ad spend.",
     type: "website",
   },
 };
