@@ -195,7 +195,9 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 text-center">
-        <div className="hero-enter">
+        {/* No entrance on the text: it is the LCP element, and Chrome won't count
+            text whose first paint was transparent. The cycle supplies the motion. */}
+        <div>
           <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-5 sm:mb-6">
             Go-To-Market Engineer
           </p>
