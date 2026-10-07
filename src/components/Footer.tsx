@@ -10,15 +10,15 @@ export default function Footer() {
             <p className="text-sm text-slate-500">Go-To-Market Engineer</p>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-slate-400">
-            <a href="mailto:shaw@arkdata.io" className="hover:text-white transition-colors">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 text-sm text-slate-400">
+            <a href="mailto:shaw@arkdata.io" className="py-3 hover:text-white transition-colors duration-150">
               shaw@arkdata.io
             </a>
             <a
               href="https://linkedin.com/in/shawcole"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
+              className="py-3 hover:text-white transition-colors duration-150"
             >
               LinkedIn
             </a>
@@ -26,7 +26,7 @@ export default function Footer() {
               href="https://github.com/ShawCole"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
+              className="py-3 hover:text-white transition-colors duration-150"
             >
               GitHub
             </a>

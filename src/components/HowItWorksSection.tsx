@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Reveal from "./Reveal";
 
 const steps = [
   {
@@ -25,34 +25,21 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-24 bg-slate-900">
+    <section className="py-16 sm:py-24 bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+        <Reveal className="text-center mb-10 sm:mb-16">
           <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-4">
             Process
           </p>
           <h2 className="font-[family-name:var(--font-merriweather)] text-3xl sm:text-4xl font-bold text-white mb-4">
             From First Call to Live Campaigns in 2 Weeks
           </h2>
-        </motion.div>
+        </Reveal>
 
         {/* Steps */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           {steps.map((step, i) => (
-            <motion.div
-              key={step.num}
-              className="relative"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-            >
+            <Reveal key={step.num} index={i} className="relative">
               <span
                 className="font-[family-name:var(--font-mono)] text-5xl font-bold opacity-20"
                 style={{ color: step.color }}
@@ -68,18 +55,12 @@ export default function HowItWorksSection() {
                   </svg>
                 </div>
               )}
-            </motion.div>
+            </Reveal>
           ))}
         </div>
 
         {/* Transparency Card */}
-        <motion.div
-          className="bg-slate-800/50 rounded-2xl p-8 border border-white/5 max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+        <Reveal className="bg-slate-800/50 rounded-2xl p-8 border border-white/5 max-w-3xl mx-auto">
           <h3 className="font-[family-name:var(--font-merriweather)] text-xl font-bold text-white mb-4">
             What to Expect on the Call
           </h3>
@@ -100,7 +81,7 @@ export default function HowItWorksSection() {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

@@ -19,13 +19,13 @@ function CustomContent(props: any) {
   const { x, y, width, height, name, value, color, index, visible } = props;
   if (width < 30 || height < 20) return null;
 
-  const delay = (index ?? 0) * 80;
+  const delay = Math.min(index ?? 0, 8) * 40;
 
   return (
     <g
       style={{
         opacity: visible ? 1 : 0,
-        transition: `opacity 0.4s ease ${delay}ms`,
+        transition: `opacity 400ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
       }}
     >
       <rect
@@ -45,16 +45,16 @@ function CustomContent(props: any) {
             x={x + 8}
             y={y + 18}
             fill="#F8FAFC"
-            fontSize={11}
+            fontSize={12}
             fontWeight={600}
           >
-            {name.length > width / 7 ? name.slice(0, Math.floor(width / 7)) + "..." : name}
+            {name.length > width / 7.5 ? name.slice(0, Math.floor(width / 7.5)) + "..." : name}
           </text>
           <text
             x={x + 8}
             y={y + 33}
             fill="#94A3B8"
-            fontSize={10}
+            fontSize={12}
             fontFamily="var(--font-mono)"
           >
             {value.toLocaleString()}
@@ -88,7 +88,7 @@ export default function TreemapChart({ data, title, color }: Props) {
   }, []);
 
   return (
-    <div ref={containerRef} className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col">
+    <div ref={containerRef} className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col min-h-[320px]">
       <h4 className="text-sm font-semibold text-slate-200 mb-2">{title}</h4>
       <div className="flex-1 min-h-0">
       <ResponsiveContainer width="100%" height="100%">

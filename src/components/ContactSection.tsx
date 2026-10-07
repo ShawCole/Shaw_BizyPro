@@ -1,7 +1,7 @@
 "use client";
 
+import Reveal from "./Reveal";
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 
 export default function ContactSection() {
   const calRef = useRef<HTMLDivElement>(null);
@@ -17,16 +17,11 @@ export default function ContactSection() {
   }, []);
 
   return (
-    <section id="contact" className="py-24 bg-navy-dark">
+    <section id="contact" className="py-16 sm:py-24 bg-navy-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Left: Pitch */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <Reveal>
             <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-4">
               Let&apos;s Talk
             </p>
@@ -55,22 +50,17 @@ export default function ContactSection() {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </Reveal>
 
           {/* Right: Calendly */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <Reveal index={2}>
             <div
               ref={calRef}
               className="calendly-inline-widget rounded-2xl overflow-hidden border border-white/10"
               data-url="https://calendly.com/shawcole"
-              style={{ minWidth: "320px", height: "630px" }}
+              style={{ minWidth: "300px", height: "630px" }}
             />
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

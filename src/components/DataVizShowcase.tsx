@@ -1,9 +1,11 @@
 "use client";
 
+import Reveal from "./Reveal";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { datasets } from "@/lib/demo-datasets";
 import { cn } from "@/lib/utils";
+import { DUR, tween } from "@/lib/motion";
 import HorizontalBarChart from "./charts/HorizontalBarChart";
 import VerticalBarChart from "./charts/VerticalBarChart";
 import DoughnutChart from "./charts/DoughnutChart";
@@ -15,15 +17,9 @@ export default function DataVizShowcase() {
   const dataset = datasets[activeTab];
 
   return (
-    <section id="dataviz" className="py-24 bg-slate-900">
+    <section id="dataviz" className="py-16 sm:py-24 bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+        <Reveal className="text-center mb-12">
           <p className="font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-4" style={{ color: dataset.color }}>
             Data Intelligence
           </p>
@@ -33,7 +29,7 @@ export default function DataVizShowcase() {
           <p className="text-slate-400 max-w-2xl mx-auto">
             Explore sample enrichment data across four industry verticals. Every chart is powered by the same 74-column identity resolution engine.
           </p>
-        </motion.div>
+        </Reveal>
 
         {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
@@ -42,7 +38,7 @@ export default function DataVizShowcase() {
               key={ds.id}
               onClick={() => setActiveTab(i)}
               className={cn(
-                "px-5 py-2.5 rounded-full text-sm font-medium transition-all",
+                "px-5 py-3 rounded-full text-sm font-medium transition-colors duration-150",
                 activeTab === i
                   ? "text-white shadow-lg"
                   : "bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800"
@@ -65,10 +61,10 @@ export default function DataVizShowcase() {
         {/* Chart Grid */}
         <motion.div
           key={dataset.id}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          initial={{ opacity: 0, y: 10 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={tween(DUR.slow)}
         >
           {[...dataset.charts].sort((a, b) =>
             a.type === "choropleth" ? 1 : b.type === "choropleth" ? -1 : 0

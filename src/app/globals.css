@@ -29,6 +29,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* anchors land below the fixed 64px header */
+  scroll-padding-top: 4rem;
 }
 
 body {
@@ -48,9 +50,55 @@ body {
   }
 }
 
-.react-flow__edge-path {
+.react-flow__edge-path,
+.flow-dash {
   stroke-dasharray: 5 5;
   animation: flowDash 1s linear infinite;
+}
+
+/* Hero cycling slots: every frame is stacked in one grid cell, so the slot is
+   always as wide/tall as its largest frame (no layout shift). Only opacity and
+   transform change. */
+.cycle-stack {
+  display: grid;
+}
+.cycle-stack > * {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(0.18em);
+  /* outgoing: quick fade (150ms) so two frames never sit on top of each other */
+  transition:
+    opacity 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cycle-stack > [data-active="true"] {
+  opacity: 1;
+  transform: none;
+  /* incoming: starts as the outgoing frame is nearly gone, 250ms ease-out */
+  transition-duration: 250ms;
+  transition-delay: calc(100ms + var(--enter-delay, 0ms));
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+.scroll-cue {
+  animation: nudge 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
 }
 
 ::-webkit-scrollbar {

@@ -23,7 +23,7 @@ interface Props {
 
 export default function VerticalBarChart({ data, title, color }: Props) {
   const approxSlotWidth = 260 / data.length;
-  const maxLabelPx = Math.max(...data.map((d) => d.name.length)) * 6.5;
+  const maxLabelPx = Math.max(...data.map((d) => d.name.length)) * 7;
   const needsAngle = maxLabelPx > approxSlotWidth;
 
   const maxVal = Math.max(...data.map((d) => d.value));
@@ -40,17 +40,17 @@ export default function VerticalBarChart({ data, title, color }: Props) {
           >
             <XAxis
               dataKey="name"
-              tick={{ fill: "#94A3B8", fontSize: 11 }}
+              tick={{ fill: "#94A3B8", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               interval={0}
               angle={needsAngle ? -30 : 0}
               textAnchor={needsAngle ? "end" : "middle"}
               dy={5}
-              height={needsAngle ? 40 : 18}
+              height={needsAngle ? 44 : 20}
             />
             <YAxis
-              tick={{ fill: "#94A3B8", fontSize: 10 }}
+              tick={{ fill: "#94A3B8", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               width={yAxisWidth}
@@ -70,7 +70,7 @@ export default function VerticalBarChart({ data, title, color }: Props) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter={(value: any) => [Number(value || 0).toLocaleString(), "Count"]}
             />
-            <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={44}>
+            <Bar animationDuration={400} animationEasing="ease-out" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={44}>
               {data.map((_, i) => (
                 <Cell key={i} fill={color} fillOpacity={0.85} />
               ))}

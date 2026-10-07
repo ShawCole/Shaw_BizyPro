@@ -44,10 +44,12 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
   const handleMouseMove = (e: React.MouseEvent, stateName: string, value: number) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
     setTooltip({
       name: stateName,
       value,
-      x: e.clientX - rect.left,
+      // flip to the left of the pointer near the right edge so it never overflows
+      x: x > rect.width - 160 ? x - 172 : x + 12,
       y: e.clientY - rect.top,
     });
   };
@@ -57,6 +59,11 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
     data.forEach((d) => m.set(d.name, d.value));
     return m;
   }, [data]);
+
+  const topStates = useMemo(
+    () => [...data].sort((a, b) => b.value - a.value).slice(0, 10),
+    [data]
+  );
 
   const colorScale = useMemo(() => {
     const values = data.map((d) => d.value).filter((v) => v > 0);
@@ -73,7 +80,7 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
   }, [data, color]);
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-5 border border-white/5 col-span-full">
+    <div className="bg-slate-800/50 rounded-xl p-4 sm:p-5 border border-white/5 col-span-full">
       <h4 className="text-sm font-semibold text-slate-200 mb-2">{title}</h4>
       <div className="relative" ref={containerRef}>
         <ComposableMap
@@ -96,6 +103,7 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
                     stroke="#0F172A"
                     strokeWidth={0.5}
                     onMouseMove={(e) => handleMouseMove(e as unknown as React.MouseEvent, stateName, value)}
+                    onClick={(e) => handleMouseMove(e as unknown as React.MouseEvent, stateName, value)}
                     onMouseLeave={() => setTooltip(null)}
                     style={{
                       default: { outline: "none" },
@@ -112,7 +120,7 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
           <div
             className="absolute pointer-events-none bg-[#0F172A] border border-white/15 rounded-lg px-3 py-2 text-sm z-10"
             style={{
-              left: tooltip.x + 12,
+              left: tooltip.x,
               top: tooltip.y - 8,
               boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
             }}
@@ -124,6 +132,18 @@ export default function USAChoroplethMap({ data, title, color }: Props) {
           </div>
         )}
       </div>
+
+      {/* Phones: the map is too small to read state-by-state, so list the leaders */}
+      <ol className="sm:hidden mt-3 divide-y divide-white/5">
+        {topStates.map((s, i) => (
+          <li key={s.name} className="flex items-center gap-3 py-2 text-sm">
+            <span className="w-5 text-right font-[family-name:var(--font-mono)] text-slate-500">{i + 1}</span>
+            <span className="flex-1 text-slate-200">{s.name}</span>
+            <span className="font-[family-name:var(--font-mono)] text-slate-300">{s.value.toLocaleString()}</span>
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colorScale(s.value) }} />
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

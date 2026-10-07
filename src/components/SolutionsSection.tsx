@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Reveal from "./Reveal";
 
 const solutions = [
   {
@@ -52,15 +52,9 @@ const solutions = [
 
 export default function SolutionsSection() {
   return (
-    <section id="solutions" className="py-24 bg-navy-dark">
+    <section id="solutions" className="py-16 sm:py-24 bg-navy-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+        <Reveal className="text-center mb-10 sm:mb-16">
           <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-4">
             Solutions
           </p>
@@ -70,19 +64,11 @@ export default function SolutionsSection() {
           <p className="text-slate-400 max-w-2xl mx-auto">
             Each product taps into the same identity resolution pipeline — your data works harder across every channel.
           </p>
-        </motion.div>
+        </Reveal>
 
         <div className="grid md:grid-cols-3 gap-6">
           {solutions.map((sol, i) => (
-            <motion.div
-              key={sol.name}
-              className="bg-slate-800/50 rounded-2xl p-6 border border-white/5 hover:border-white/15 transition-all group"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              style={{ "--accent": sol.color } as React.CSSProperties}
-            >
+            <Reveal key={sol.name} index={i} className="bg-slate-800/50 rounded-2xl p-6 border border-white/5 hover:border-white/15 transition-colors duration-150 group" style={{ "--accent": sol.color } as React.CSSProperties}>
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
                 style={{ backgroundColor: `${sol.color}15` }}
@@ -115,7 +101,7 @@ export default function SolutionsSection() {
                 </span>
                 <span className="text-xs text-slate-400 ml-2">{sol.metricLabel}</span>
               </div>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>

@@ -24,7 +24,7 @@ interface Props {
 export default function HorizontalBarChart({ data, title, color }: Props) {
   const displayData = data.slice(0, 8);
   const maxLabelLength = Math.max(...displayData.map((d) => d.name.length));
-  const labelWidth = Math.min(Math.max(maxLabelLength * 6.5, 70), 150);
+  const labelWidth = Math.min(Math.max(maxLabelLength * 7, 70), 150);
   const chartHeight = displayData.length * 36 + 16;
 
   return (
@@ -42,7 +42,7 @@ export default function HorizontalBarChart({ data, title, color }: Props) {
           <YAxis
             type="category"
             dataKey="name"
-            tick={{ fill: "#94A3B8", fontSize: 11 }}
+            tick={{ fill: "#94A3B8", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
             width={labelWidth}
@@ -62,7 +62,7 @@ export default function HorizontalBarChart({ data, title, color }: Props) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter={(value: any) => [Number(value || 0).toLocaleString(), "Count"]}
           />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
+          <Bar animationDuration={400} animationEasing="ease-out" dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
             {displayData.map((_, i) => (
               <Cell key={i} fill={color} fillOpacity={0.8 - i * 0.03} />
             ))}

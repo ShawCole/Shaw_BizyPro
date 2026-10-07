@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import type { EngineNodeData } from "@/lib/engine-nodes";
+import { DUR, tween } from "@/lib/motion";
 
 interface Props {
   node: EngineNodeData | null;
@@ -18,6 +19,7 @@ export default function EngineNodeDetail({ node, onClose }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={tween(DUR.base)}
             onClick={onClose}
           />
           <motion.div
@@ -25,12 +27,12 @@ export default function EngineNodeDetail({ node, onClose }: Props) {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={tween(DUR.slow)}
           >
             <div className="p-6">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
+                className="absolute top-3 right-3 text-slate-400 hover:text-white p-2.5 transition-colors duration-150"
                 aria-label="Close"
               >
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -39,7 +41,7 @@ export default function EngineNodeDetail({ node, onClose }: Props) {
               </button>
 
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mt-6 sm:mt-0"
                 style={{ backgroundColor: `${node.color}20` }}
               >
                 <svg width="24" height="24" fill="none" stroke={node.color} strokeWidth="1.5" viewBox="0 0 24 24">

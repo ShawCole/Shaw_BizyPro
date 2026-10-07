@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { MotionConfig } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import SolutionsSection from "@/components/SolutionsSection";
@@ -21,7 +22,7 @@ const DataVizShowcase = dynamic(
 
 export default function PageClient() {
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <Navbar />
       <main>
         <HeroSection />
@@ -33,6 +34,6 @@ export default function PageClient() {
         <ContactSection />
       </main>
       <Footer />
-    </>
+    </MotionConfig>
   );
 }

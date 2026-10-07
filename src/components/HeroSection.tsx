@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { DUR, tween } from "@/lib/motion";
 
 const FRAMES = [
   { word: "Systems", line1: "Turn Anonymous Traffic", line2: "Into Revenue" },
@@ -14,239 +15,144 @@ const FRAMES = [
 ];
 
 const DWELL_MS = 4000;
-const FADE_IN_S = 0.35;
-const FADE_OUT_S = 0.4;
-const STAGGER_S = 0.15;
 
-function CyclingLine({
-  children,
-  index,
-  className,
-  height,
-  enterDelay,
+/**
+ * Every frame is rendered into the same grid cell (see .cycle-stack in
+ * globals.css), so the slot reserves the size of its largest frame and never
+ * shifts layout. Switching frames is a pure opacity/transform crossfade.
+ */
+function CycleStack({
+  active,
+  pick,
+  className = "",
+  enterDelayMs = 0,
+  nowrap = false,
 }: {
-  children: ReactNode;
-  index: number;
-  className: string;
-  height: string;
-  enterDelay: number;
+  active: number;
+  pick: (f: (typeof FRAMES)[number]) => string;
+  className?: string;
+  enterDelayMs?: number;
+  nowrap?: boolean;
 }) {
   return (
-    <div className={`relative overflow-hidden ${height}`}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={index}
-          className={`absolute inset-x-0 text-center whitespace-nowrap ${className}`}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          variants={{
-            initial: { opacity: 0 },
-            animate: {
-              opacity: 1,
-              transition: { opacity: { duration: FADE_IN_S, delay: enterDelay, ease: "easeOut" } },
-            },
-            exit: {
-              opacity: 0,
-              y: 20,
-              transition: {
-                opacity: { duration: FADE_OUT_S, ease: "easeIn" },
-                y: { duration: FADE_OUT_S, ease: "easeIn" },
-              },
-            },
-          }}
+    <span
+      className={`cycle-stack justify-items-center ${className}`}
+      style={{ "--enter-delay": `${enterDelayMs}ms` } as CSSProperties}
+    >
+      {FRAMES.map((f, i) => (
+        <span
+          key={i}
+          data-active={i === active}
+          aria-hidden={i !== active}
+          className={nowrap ? "whitespace-nowrap" : "text-balance"}
         >
-          {children}
-        </motion.div>
-      </AnimatePresence>
-    </div>
+          {pick(f)}
+        </span>
+      ))}
+    </span>
   );
 }
 
 export default function HeroSection() {
   const [index, setIndex] = useState(0);
-  const [widthIndex, setWidthIndex] = useState(0);
-  const [wordWidth, setWordWidth] = useState<number>(0);
   const reducedMotion = useReducedMotion();
-  const measurerRef = useRef<HTMLSpanElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
 
-  const advance = useCallback(() => {
-    setIndex((prev) => (prev + 1) % FRAMES.length);
+  // Only cycle while the hero is visible (and never under reduced motion).
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
-    const id = setInterval(advance, DWELL_MS);
-    return () => clearInterval(id);
-  }, [advance]);
-
-  // Width timing: expand immediately (during exit), shrink after exit
-  const prevIndexRef = useRef(index);
-  useEffect(() => {
-    // Measure new word width to compare
-    const tempSpan = document.createElement("span");
-    tempSpan.style.cssText = "position:absolute;opacity:0;pointer-events:none;white-space:nowrap;font-weight:bold;";
-    tempSpan.className = measurerRef.current?.className || "";
-    tempSpan.textContent = FRAMES[index].word;
-    document.body.appendChild(tempSpan);
-    const newWidth = tempSpan.offsetWidth;
-    document.body.removeChild(tempSpan);
-
-    const isExpanding = newWidth > wordWidth;
-    prevIndexRef.current = index;
-
-    if (isExpanding) {
-      // Next word is longer — start expanding immediately so it's ready when fade-in starts
-      setWidthIndex(index);
-    } else {
-      // Next word is shorter — wait for exit to complete before shrinking
-      const timer = setTimeout(() => {
-        setWidthIndex(index);
-      }, FADE_OUT_S * 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [index]);
-
-  // Measure when widthIndex changes (after exit is done)
-  useEffect(() => {
-    if (measurerRef.current) {
-      setWordWidth(measurerRef.current.offsetWidth);
-    }
-  }, [widthIndex]);
-
-  // Re-measure on resize
-  useEffect(() => {
-    const onResize = () => {
-      if (measurerRef.current) {
-        setWordWidth(measurerRef.current.offsetWidth);
+    if (reducedMotion || !onScreen) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        setIndex((prev) => (prev + 1) % FRAMES.length);
       }
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const frame = FRAMES[index];
-  const widthTransition = { duration: 0.35, ease: "easeInOut" as const };
+    }, DWELL_MS);
+    return () => clearInterval(id);
+  }, [reducedMotion, onScreen]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-navy-dark via-navy to-slate-900">
+    <section
+      ref={sectionRef}
+      className="relative min-h-svh flex items-center justify-center overflow-hidden bg-gradient-to-b from-navy-dark via-navy to-slate-900 pt-24 pb-20 sm:py-24"
+    >
       {/* Grid background */}
-      <div className="absolute inset-0 opacity-[0.07]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
+      <div
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      />
 
-      {/* Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-green/5 blur-[120px]" />
+      {/* Glow — a radial gradient, not a blurred layer (no filter to repaint on scroll) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(600px circle at 50% 33%, rgba(57,181,74,0.07), transparent 70%)",
+        }}
+      />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={tween(DUR.slow)}
         >
-          <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-6">
+          <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-5 sm:mb-6">
             Go-To-Market Engineer
           </p>
 
-          <div aria-live="polite" aria-atomic="true">
-            {/* Hidden measurer — same font styling, offscreen */}
-            <span
-              ref={measurerRef}
-              aria-hidden="true"
-              className="absolute opacity-0 pointer-events-none whitespace-nowrap font-[family-name:var(--font-merriweather)] text-3xl sm:text-[2.75rem] lg:text-[3.5rem] font-bold"
-            >
-              {FRAMES[widthIndex].word}
+          <h1 className="font-[family-name:var(--font-merriweather)] font-bold leading-tight">
+            {/* Line 1: "I Build [word] That" — stacked on phones, one row from sm up */}
+            <span className="flex flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-x-[0.3em] text-[1.875rem] sm:text-[2.25rem] lg:text-[3.5rem] text-white">
+              <span>I Build</span>
+              <CycleStack active={index} pick={(f) => f.word} className="text-green" nowrap />
+              <span>That</span>
             </span>
 
-            {/* Line 1: "I Build [word] That" — enters first (delay: 0) */}
-            <div className="font-[family-name:var(--font-merriweather)] text-3xl sm:text-[2.75rem] lg:text-[3.5rem] font-bold text-white leading-tight flex items-baseline justify-center gap-x-[0.25em]">
-              <span>I Build</span>
+            {/* Line 2: green phrase — enters second */}
+            <CycleStack
+              active={index}
+              pick={(f) => f.line1}
+              enterDelayMs={80}
+              className="mt-3 text-[1.375rem] sm:text-3xl lg:text-[2.5rem] leading-snug text-green"
+            />
 
-              {/* Animated-width container — pushes "That" smoothly */}
-              <motion.span
-                className="relative inline-block align-baseline"
-                animate={{ width: wordWidth || "auto" }}
-                transition={widthTransition}
-              >
-                {/* Invisible spacer — establishes baseline + height in flow */}
-                <span className="invisible whitespace-nowrap" aria-hidden="true">Xg</span>
-                {/* The word fades in (no y), fades out + slides down */}
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={`word-${index}`}
-                    className="absolute top-0 left-1/2 text-green whitespace-nowrap"
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    variants={{
-                      initial: { opacity: 0, x: "-50%" },
-                      animate: {
-                        opacity: 1,
-                        x: "-50%",
-                        transition: { opacity: { duration: FADE_IN_S, delay: 0, ease: "easeOut" } },
-                      },
-                      exit: {
-                        opacity: 0,
-                        y: 20,
-                        x: "-50%",
-                        transition: {
-                          opacity: { duration: FADE_OUT_S, ease: "easeIn" },
-                          y: { duration: FADE_OUT_S, ease: "easeIn" },
-                        },
-                      },
-                    }}
-                  >
-                    {frame.word}
-                  </motion.span>
-                </AnimatePresence>
-              </motion.span>
+            {/* Line 3: white phrase — enters third */}
+            <CycleStack
+              active={index}
+              pick={(f) => f.line2}
+              enterDelayMs={160}
+              className="mt-1 sm:mt-2 text-lg sm:text-2xl lg:text-[2rem] leading-snug text-slate-200"
+            />
+          </h1>
 
-              <span>That</span>
-            </div>
-
-            {/* Line 2: cycling green phrase — enters second (delay: STAGGER_S) */}
-            <CyclingLine
-              index={index}
-              height="h-[36px] sm:h-[46px] lg:h-[56px] mt-3"
-              className="font-[family-name:var(--font-merriweather)] text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-green leading-none"
-              enterDelay={STAGGER_S}
-            >
-              {frame.line1}
-            </CyclingLine>
-
-            {/* Line 3: cycling white phrase — enters third (delay: STAGGER_S * 2) */}
-            <CyclingLine
-              index={index}
-              height="h-[32px] sm:h-[40px] lg:h-[48px] mt-2"
-              className="font-[family-name:var(--font-merriweather)] text-xl sm:text-2xl lg:text-[2rem] font-bold text-slate-200 leading-none"
-              enterDelay={STAGGER_S * 2}
-            >
-              {frame.line2}
-            </CyclingLine>
-          </div>
-
-          <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mt-8 mb-10">
-            Three companies. One data engine. Zero wasted ad spend.
+          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mt-6 mb-8 sm:mt-8 sm:mb-10">
+            Three companies. One data engine. Zero wasted ad spend.{" "}
             <br className="hidden sm:block" />
             Visitor identification, audience building, and omnichannel activation.
           </p>
         </motion.div>
 
         <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-          initial={{ opacity: 0, y: 20 }}
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          transition={tween(DUR.slow, 0.1)}
         >
           <a
             href="#engine"
-            className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-8 py-3.5 rounded-full transition-all"
+            className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-8 py-3.5 rounded-full transition-colors duration-150"
           >
             See the Engine
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -255,22 +161,18 @@ export default function HeroSection() {
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center bg-green hover:bg-green-dark text-white font-semibold px-8 py-3.5 rounded-full transition-colors"
+            className="inline-flex items-center justify-center bg-green hover:bg-green-dark text-white font-semibold px-8 py-3.5 rounded-full transition-colors duration-150"
           >
             Book a Strategy Call
           </a>
         </motion.div>
+      </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
-            <path d="M12 5v14M5 12l7 7 7-7" />
-          </svg>
-        </motion.div>
+      {/* Scroll cue — anchored to the section, hidden on phones where it collided with the CTAs */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden sm:block" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="scroll-cue text-slate-500">
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
       </div>
     </section>
   );

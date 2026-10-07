@@ -41,6 +41,8 @@ export default function DoughnutChart({
             paddingAngle={2}
             cornerRadius={4}
             dataKey="value"
+            animationDuration={400}
+            animationEasing="ease-out"
           >
             {data.map((_, i) => (
               <Cell key={i} fill={colors[i % colors.length]} stroke="none" />
@@ -83,7 +85,7 @@ export default function DoughnutChart({
         <p className="font-[family-name:var(--font-mono)] text-xl font-bold text-white">
           {topPct}%
         </p>
-        <p className="text-xs text-slate-400">{top.name}</p>
+        <p className="text-[13px] text-slate-400">{top.name}</p>
       </div>
 
       {/* Legend */}
@@ -94,7 +96,7 @@ export default function DoughnutChart({
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: colors[i % colors.length] }}
             />
-            <span className="text-xs text-slate-400">{d.name}</span>
+            <span className="text-[13px] text-slate-400">{d.name}</span>
           </div>
         ))}
       </div>
