@@ -114,13 +114,9 @@ function WordSlot({ active, prev, instant }: { active: number; prev: number | nu
   return (
     <span
       ref={slotRef}
-      className="relative inline-block align-baseline text-green"
-      style={
-        {
-          "--enter-delay": grow ? "100ms" : "0ms",
-          ...(widths.length ? { width: widths[active] } : {}),
-        } as CSSProperties
-      }
+      className="word-slot relative inline-block align-baseline text-green"
+      data-grow={grow}
+      style={widths.length ? { width: widths[active] } : undefined}
     >
       {/* in-flow spacer: the current word, invisible. Gives the slot its baseline
           and, before hydration, its correct width. */}
