@@ -11,8 +11,8 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-6 text-sm text-slate-400">
-            <a href="mailto:shaw@listmagic.io" className="py-3 hover:text-white transition-colors duration-150">
-              shaw@listmagic.io
+            <a href="mailto:shaw@intentmagic.io" className="py-3 hover:text-white transition-colors duration-150">
+              shaw@intentmagic.io
             </a>
             <a
               href="https://linkedin.com/in/shawcole"
