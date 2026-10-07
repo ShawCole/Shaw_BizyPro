@@ -91,8 +91,6 @@ function WordSlot({ active, prev, instant }: { active: number; prev: number | nu
   useLayoutEffect(() => {
     const slot = slotRef.current;
     if (!slot || prev === null || instant || !widths.length) return;
-    // Phones stack the three parts on separate rows: nothing beside the word moves.
-    if (!window.matchMedia("(min-width: 640px)").matches) return;
     const half = (widths[active] - widths[prev]) / 2;
     if (Math.abs(half) < 0.5) return;
     const opts: KeyframeAnimationOptions = {
@@ -199,8 +197,9 @@ export default function HeroSection() {
           </p>
 
           <h1 className="font-[family-name:var(--font-merriweather)] font-bold leading-tight">
-            {/* Line 1: "I Build [word] That" — stacked on phones, one row from sm up */}
-            <span className="flex flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-x-[0.3em] text-[1.875rem] sm:text-[2.25rem] lg:text-[3.5rem] text-white">
+            {/* Line 1: "I Build [word] That" — always one row. On phones the size
+                scales with the screen so the longest variant still fits. */}
+            <span className="hero-line flex flex-row items-baseline justify-center gap-x-[0.3em] whitespace-nowrap text-white">
               <span>I Build</span>
               <WordSlot active={index} prev={prev} instant={!!reducedMotion} />
               <span>That</span>
