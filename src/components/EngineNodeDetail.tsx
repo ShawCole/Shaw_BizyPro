@@ -1,11 +1,11 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import type { EngineNodeData } from "@/lib/engine-nodes";
+import type { BlockData } from "@/lib/architecture";
 import { DUR, tween } from "@/lib/motion";
 
 interface Props {
-  node: EngineNodeData | null;
+  node: BlockData | null;
   onClose: () => void;
 }
 
@@ -74,6 +74,16 @@ export default function EngineNodeDetail({ node, onClose }: Props) {
                   </li>
                 ))}
               </ul>
+
+              {node.cta && (
+                <a
+                  href={node.cta.href}
+                  onClick={onClose}
+                  className="mt-8 inline-flex w-full items-center justify-center bg-green hover:bg-green-dark text-white font-semibold px-8 py-3.5 rounded-full transition-colors duration-150"
+                >
+                  {node.cta.label}
+                </a>
+              )}
             </div>
           </motion.div>
         </>

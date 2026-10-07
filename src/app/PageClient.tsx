@@ -10,10 +10,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
-const EngineVisualization = dynamic(
-  () => import("@/components/EngineVisualization"),
-  { ssr: false }
-);
+import ArchitectureSection from "@/components/ArchitectureSection";
 
 const DataVizShowcase = dynamic(
   () => import("@/components/DataVizShowcase"),
@@ -26,7 +23,7 @@ export default function PageClient() {
       <Navbar />
       <main>
         <HeroSection />
-        <EngineVisualization />
+        <ArchitectureSection />
         <SolutionsSection />
         <DataVizShowcase />
         <ResultsSection />
