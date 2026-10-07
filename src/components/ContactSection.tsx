@@ -1,21 +1,13 @@
 "use client";
 
 import Reveal from "./Reveal";
-import { useEffect, useRef } from "react";
+
+// Google Calendar appointment schedule (short link: calendar.app.google/HwAftmiUp4mwvshe6).
+// ?gv=true is Google's embeddable form of the booking page.
+const BOOKING_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AVFposi-dq1q_bRlI1iL9I7qumRQ7JxcShug19593oidUG7IIqrRvjaW7fxp3jtDEEUpsHjSY?gv=true";
 
 export default function ContactSection() {
-  const calRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://assets.calendly.com/assets/external/widget.js";
-    script.async = true;
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
-
   return (
     <section id="contact" className="py-16 sm:py-24 bg-navy-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,13 +44,27 @@ export default function ContactSection() {
             </ul>
           </Reveal>
 
-          {/* Right: Calendly */}
+          {/* Right: booking calendar */}
           <Reveal index={2}>
-            <div
-              ref={calRef}
-              className="calendly-inline-widget rounded-2xl overflow-hidden border border-white/10"
-              data-url="https://calendly.com/shawcole"
-              style={{ minWidth: "300px", height: "630px" }}
+            {/* Phones: Google's embed collapses into a broken narrow column below
+                ~600px, so link out to the full-screen booking page instead. */}
+            <div className="sm:hidden bg-slate-800/50 rounded-2xl p-6 border border-white/10 text-center">
+              <p className="text-white font-semibold text-lg">30-minute strategy call</p>
+              <p className="text-sm text-slate-400 mt-1 mb-5">Google Meet · pick any open slot</p>
+              <a
+                href={BOOKING_URL.replace("?gv=true", "")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center bg-green hover:bg-green-dark text-white font-semibold px-8 py-3.5 rounded-full transition-colors duration-150"
+              >
+                Pick a time
+              </a>
+            </div>
+            <iframe
+              src={BOOKING_URL}
+              title="Book a strategy call with Shaw Cole"
+              loading="lazy"
+              className="hidden sm:block w-full h-[680px] rounded-2xl border border-white/10 bg-white"
             />
           </Reveal>
         </div>
