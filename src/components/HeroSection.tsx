@@ -6,6 +6,7 @@ import { DUR, EASE_MOVE_CSS } from "@/lib/motion";
 
 const FRAMES = [
   { word: "Systems", line1: "Turn Anonymous Traffic", line2: "Into Revenue" },
+  { word: "Agent Fleets", line1: "Run Your Operations 24/7", line2: "On Any AI Model" },
   { word: "Tools", line1: "Empower Leadership With", line2: "Actionable Insights" },
   { word: "Landing Pages", line1: "Optimize Conversion Rates", line2: "With Avatar-Specific Content Copy" },
   { word: "Ads", line1: "Target Intent-Aware Traffic", line2: "Anywhere On The Internet" },
