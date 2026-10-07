@@ -76,7 +76,7 @@ export const engineNodes: Node<EngineNodeData>[] = [
     ...nodeDefaults,
   },
   {
-    id: "arkdata",
+    id: "intentmagic",
     position: { x: 400, y: 420 },
     data: {
       label: "IntentMagic Platform",
@@ -151,9 +151,9 @@ export const engineEdges: Edge[] = [
     style: { stroke: "#F59E0B", strokeWidth: 2 },
   },
   {
-    id: "enrichment-arkdata",
+    id: "enrichment-intentmagic",
     source: "enrichment",
-    target: "arkdata",
+    target: "intentmagic",
     animated: true,
     style: { stroke: "#39B54A", strokeWidth: 2 },
   },

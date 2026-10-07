@@ -16,7 +16,7 @@ import Reveal from "./Reveal";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 
 const PIPELINE = ["pixel", "identity", "enrichment"];
-const PRODUCTS = ["arkdata", "listmagic", "dsp"];
+const PRODUCTS = ["intentmagic", "listmagic", "dsp"];
 const byId = (id: string) => engineNodes.find((n) => n.id === id)!.data;
 
 function NodeIcon({ data, size = 32 }: { data: EngineNodeData; size?: number }) {

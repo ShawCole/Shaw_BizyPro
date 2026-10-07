@@ -11,6 +11,12 @@ export const DUR = {
 export const EASE = [0.22, 1, 0.36, 1] as const;
 export const EASE_CSS = "cubic-bezier(0.22, 1, 0.36, 1)";
 
+// For things that MOVE between two resting positions (the hero word slot
+// resizing): sine in-out, the lowest peak speed for a given duration, so
+// neighbours start and stop gently and never lurch.
+export const EASE_MOVE = [0.37, 0, 0.63, 1] as const;
+export const EASE_MOVE_CSS = "cubic-bezier(0.37, 0, 0.63, 1)";
+
 // Delay between siblings in a staggered reveal — subtle, and capped so a long
 // list never makes the last item wait.
 export const STAGGER = 0.06;

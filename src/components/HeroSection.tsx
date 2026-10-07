@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, type CSSProperties } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { DUR, tween } from "@/lib/motion";
+import { DUR, EASE_MOVE_CSS, tween } from "@/lib/motion";
 
 const FRAMES = [
   { word: "Systems", line1: "Turn Anonymous Traffic", line2: "Into Revenue" },
@@ -14,25 +14,29 @@ const FRAMES = [
   { word: "Websites", line1: "Dynamically Display", line2: "Avatar-Specific Content" },
 ];
 
-const DWELL_MS = 4000;
+const DWELL_MS = 3000;
+
+type FrameState = "active" | "prev" | "next";
+const stateOf = (i: number, active: number, prev: number | null): FrameState =>
+  i === active ? "active" : i === prev ? "prev" : "next";
 
 /**
- * Every frame is rendered into the same grid cell (see .cycle-stack in
- * globals.css), so the slot reserves the size of its largest frame and never
- * shifts layout. Switching frames is a pure opacity/transform crossfade.
+ * Lines 2 and 3: every frame sits in the same grid cell, so the line keeps the
+ * height of its tallest phrase and the CTAs below never jump. The swap is a
+ * slide-up (see .cycle-frame in globals.css).
  */
 function CycleStack({
   active,
+  prev,
   pick,
   className = "",
   enterDelayMs = 0,
-  nowrap = false,
 }: {
   active: number;
+  prev: number | null;
   pick: (f: (typeof FRAMES)[number]) => string;
   className?: string;
   enterDelayMs?: number;
-  nowrap?: boolean;
 }) {
   return (
     <span
@@ -42,9 +46,9 @@ function CycleStack({
       {FRAMES.map((f, i) => (
         <span
           key={i}
-          data-active={i === active}
+          data-state={stateOf(i, active, prev)}
           aria-hidden={i !== active}
-          className={nowrap ? "whitespace-nowrap" : "text-balance"}
+          className="cycle-frame text-balance"
         >
           {pick(f)}
         </span>
@@ -53,8 +57,95 @@ function CycleStack({
   );
 }
 
+/**
+ * The cycling word in "I Build [word] That". The slot takes each word's real
+ * width, so there is never a gap sized for a longer word. The width itself
+ * changes in one step; "I Build" and "That" are then FLIP-animated from where
+ * they were with a compositor transform, so they glide even if the main thread
+ * is busy (an animated `width` would stutter on any main-thread stall).
+ */
+function WordSlot({ active, prev, instant }: { active: number; prev: number | null; instant: boolean }) {
+  const slotRef = useRef<HTMLSpanElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [widths, setWidths] = useState<number[]>([]);
+
+  // Measure every word once in the live font/size; re-measure when the
+  // breakpoint or web font changes the size.
+  useLayoutEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+    const measure = () =>
+      setWidths([...el.children].map((c) => (c as HTMLElement).getBoundingClientRect().width));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    document.fonts?.ready.then(measure);
+    return () => ro.disconnect();
+  }, []);
+
+  // Order the two motions so the word never runs into its neighbours:
+  // growing -> neighbours slide out first, then the new word rises in;
+  // shrinking -> the old word leaves first (100ms), then neighbours slide in.
+  const grow = prev !== null && widths.length > 0 && widths[active] > widths[prev];
+
+  useLayoutEffect(() => {
+    const slot = slotRef.current;
+    if (!slot || prev === null || instant || !widths.length) return;
+    // Phones stack the three parts on separate rows: nothing beside the word moves.
+    if (!window.matchMedia("(min-width: 640px)").matches) return;
+    const half = (widths[active] - widths[prev]) / 2;
+    if (Math.abs(half) < 0.5) return;
+    const opts: KeyframeAnimationOptions = {
+      duration: DUR.base * 1000,
+      easing: EASE_MOVE_CSS,
+      delay: grow ? 0 : 100,
+      fill: "backwards",
+    };
+    const before = slot.previousElementSibling as HTMLElement | null;
+    const after = slot.nextElementSibling as HTMLElement | null;
+    const anims = [
+      before?.animate([{ transform: `translateX(${half}px)` }, { transform: "none" }], opts),
+      after?.animate([{ transform: `translateX(${-half}px)` }, { transform: "none" }], opts),
+    ];
+    return () => anims.forEach((a) => a?.cancel());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per swap
+  }, [active]);
+
+  return (
+    <span
+      ref={slotRef}
+      className="relative inline-block align-baseline text-green"
+      style={
+        {
+          "--enter-delay": grow ? "100ms" : "0ms",
+          ...(widths.length ? { width: widths[active] } : {}),
+        } as CSSProperties
+      }
+    >
+      {/* in-flow spacer: the current word, invisible. Gives the slot its baseline
+          and, before hydration, its correct width. */}
+      <span className="invisible whitespace-nowrap" aria-hidden="true">{FRAMES[active].word}</span>
+      {FRAMES.map((f, i) => (
+        <span key={i} className="absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap" aria-hidden={i !== active}>
+          <span className="cycle-frame inline-block" data-state={stateOf(i, active, prev)}>
+            {f.word}
+          </span>
+        </span>
+      ))}
+      {/* hidden measurer: same font, natural widths */}
+      <span ref={measureRef} className="absolute invisible whitespace-nowrap pointer-events-none" aria-hidden="true">
+        {FRAMES.map((f, i) => (
+          <span key={i} className="absolute">{f.word}</span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
 export default function HeroSection() {
   const [index, setIndex] = useState(0);
+  const [cycled, setCycled] = useState(false);
+  const prev = cycled ? (index - 1 + FRAMES.length) % FRAMES.length : null;
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const [onScreen, setOnScreen] = useState(true);
@@ -72,7 +163,8 @@ export default function HeroSection() {
     if (reducedMotion || !onScreen) return;
     const id = setInterval(() => {
       if (document.visibilityState === "visible") {
-        setIndex((prev) => (prev + 1) % FRAMES.length);
+        setCycled(true);
+        setIndex((i) => (i + 1) % FRAMES.length);
       }
     }, DWELL_MS);
     return () => clearInterval(id);
@@ -116,23 +208,25 @@ export default function HeroSection() {
             {/* Line 1: "I Build [word] That" — stacked on phones, one row from sm up */}
             <span className="flex flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-x-[0.3em] text-[1.875rem] sm:text-[2.25rem] lg:text-[3.5rem] text-white">
               <span>I Build</span>
-              <CycleStack active={index} pick={(f) => f.word} className="text-green" nowrap />
+              <WordSlot active={index} prev={prev} instant={!!reducedMotion} />
               <span>That</span>
             </span>
 
             {/* Line 2: green phrase — enters second */}
             <CycleStack
               active={index}
+              prev={prev}
               pick={(f) => f.line1}
-              enterDelayMs={80}
+              enterDelayMs={40}
               className="mt-3 text-[1.375rem] sm:text-3xl lg:text-[2.5rem] leading-snug text-green"
             />
 
             {/* Line 3: white phrase — enters third */}
             <CycleStack
               active={index}
+              prev={prev}
               pick={(f) => f.line2}
-              enterDelayMs={160}
+              enterDelayMs={80}
               className="mt-1 sm:mt-2 text-lg sm:text-2xl lg:text-[2rem] leading-snug text-slate-200"
             />
           </h1>
