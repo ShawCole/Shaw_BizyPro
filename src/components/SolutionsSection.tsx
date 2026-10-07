@@ -4,7 +4,7 @@ import Reveal from "./Reveal";
 
 const solutions = [
   {
-    name: "ArkData",
+    name: "IntentMagic",
     tagline: "Visitor Intelligence Platform",
     description: "See who's on your site before they fill out a form.",
     color: "#39B54A",

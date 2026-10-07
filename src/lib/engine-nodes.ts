@@ -79,7 +79,7 @@ export const engineNodes: Node<EngineNodeData>[] = [
     id: "arkdata",
     position: { x: 400, y: 420 },
     data: {
-      label: "ArkData Platform",
+      label: "IntentMagic Platform",
       description: "Full visitor intelligence dashboard for client teams",
       metric: "Real-time",
       metricLabel: "Dashboard",
