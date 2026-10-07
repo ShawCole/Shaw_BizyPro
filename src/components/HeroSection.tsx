@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { DUR, EASE_MOVE_CSS, tween } from "@/lib/motion";
+import { useReducedMotion } from "framer-motion";
+import { DUR, EASE_MOVE_CSS } from "@/lib/motion";
 
 const FRAMES = [
   { word: "Systems", line1: "Turn Anonymous Traffic", line2: "Into Revenue" },
@@ -195,11 +195,7 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={tween(DUR.slow)}
-        >
+        <div className="hero-enter">
           <p className="text-green font-[family-name:var(--font-mono)] text-sm tracking-widest uppercase mb-5 sm:mb-6">
             Go-To-Market Engineer
           </p>
@@ -236,14 +232,9 @@ export default function HeroSection() {
             <br className="hidden sm:block" />
             Visitor identification, audience building, and omnichannel activation.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={tween(DUR.slow, 0.1)}
-        >
+        <div className="hero-enter-late flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <a
             href="#engine"
             className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-8 py-3.5 rounded-full transition-colors duration-150"
@@ -259,7 +250,7 @@ export default function HeroSection() {
           >
             Book a Strategy Call
           </a>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll cue — anchored to the section, hidden on phones where it collided with the CTAs */}
