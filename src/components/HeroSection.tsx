@@ -68,19 +68,25 @@ function CycleStack({
 function WordSlot({ active, prev, instant }: { active: number; prev: number | null; instant: boolean }) {
   const slotRef = useRef<HTMLSpanElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
+  const lastWidth = useRef(0);
+  // Relative word lengths, only to decide grow vs shrink ordering at render
+  // time. Layout never uses these: the slot is sized by the in-flow spacer.
   const [widths, setWidths] = useState<number[]>([]);
 
-  // Measure every word once in the live font/size; re-measure when the
-  // breakpoint or web font changes the size.
   useLayoutEffect(() => {
     const el = measureRef.current;
-    if (!el) return;
+    const slot = slotRef.current;
+    if (!el || !slot) return;
     const measure = () =>
       setWidths([...el.children].map((c) => (c as HTMLElement).getBoundingClientRect().width));
     measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
     document.fonts?.ready.then(measure);
+    // The slot has a real size, so this fires on font swap and breakpoint changes.
+    lastWidth.current = slot.getBoundingClientRect().width;
+    const ro = new ResizeObserver(() => {
+      lastWidth.current = slot.getBoundingClientRect().width;
+    });
+    ro.observe(slot);
     return () => ro.disconnect();
   }, []);
 
@@ -89,15 +95,19 @@ function WordSlot({ active, prev, instant }: { active: number; prev: number | nu
   // shrinking -> the old word leaves first (100ms), then neighbours slide in.
   const grow = prev !== null && widths.length > 0 && widths[active] > widths[prev];
 
+  // FLIP the neighbours from where they were, using the slot's real rendered
+  // widths before and after the swap (no measured numbers in the layout path).
   useLayoutEffect(() => {
     const slot = slotRef.current;
-    if (!slot || prev === null || instant || !widths.length) return;
-    const half = (widths[active] - widths[prev]) / 2;
-    if (Math.abs(half) < 0.5) return;
+    if (!slot) return;
+    const newWidth = slot.getBoundingClientRect().width;
+    const half = (newWidth - lastWidth.current) / 2;
+    lastWidth.current = newWidth;
+    if (prev === null || instant || Math.abs(half) < 0.5) return;
     const opts: KeyframeAnimationOptions = {
       duration: DUR.base * 1000,
       easing: EASE_MOVE_CSS,
-      delay: grow ? 0 : 100,
+      delay: half > 0 ? 0 : 100,
       fill: "backwards",
     };
     const before = slot.previousElementSibling as HTMLElement | null;
@@ -115,10 +125,9 @@ function WordSlot({ active, prev, instant }: { active: number; prev: number | nu
       ref={slotRef}
       className="word-slot relative inline-block align-baseline text-green"
       data-grow={grow}
-      style={widths.length ? { width: widths[active] } : undefined}
     >
-      {/* in-flow spacer: the current word, invisible. Gives the slot its baseline
-          and, before hydration, its correct width. */}
+      {/* in-flow spacer: the current word, invisible. It alone sizes the slot, in
+          the real font, in every browser, before and after hydration. */}
       <span className="invisible whitespace-nowrap" aria-hidden="true">{FRAMES[active].word}</span>
       {FRAMES.map((f, i) => (
         <span key={i} className="absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap" aria-hidden={i !== active}>
@@ -200,7 +209,7 @@ export default function HeroSection() {
           <h1 className="font-[family-name:var(--font-merriweather)] font-bold leading-tight">
             {/* Line 1: "I Build [word] That" — always one row. On phones the size
                 scales with the screen so the longest variant still fits. */}
-            <span className="hero-line flex flex-row items-baseline justify-center gap-x-[0.3em] whitespace-nowrap text-white">
+            <span className="hero-line flex flex-row items-baseline justify-center gap-x-[0.24em] whitespace-nowrap text-white">
               <span>I Build</span>
               <WordSlot active={index} prev={prev} instant={!!reducedMotion} />
               <span>That</span>
